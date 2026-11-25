@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: 99 102 241;
+  --color-secondary: 56 189 248;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  @apply bg-slate-50 text-slate-900 dark:bg-[#0F172A] dark:text-slate-100 antialiased;
+}
+
+code, pre {
+  font-family: 'JetBrains Mono', monospace;
+}
