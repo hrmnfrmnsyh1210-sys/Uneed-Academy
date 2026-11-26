@@ -5,8 +5,13 @@ import * as schema from './schema'
 let _pool: mysql.Pool | null = null
 
 export function getDbConnection() {
-  const config = useRuntimeConfig()
-  const dbUrl = config.databaseUrl || process.env.DATABASE_URL
+  let dbUrl = process.env.DATABASE_URL
+  try {
+    const config = useRuntimeConfig()
+    if (config.databaseUrl) dbUrl = config.databaseUrl
+  } catch {
+    // Running outside Nitro request context (e.g. CLI scripts)
+  }
 
   if (!_pool) {
     if (dbUrl) {

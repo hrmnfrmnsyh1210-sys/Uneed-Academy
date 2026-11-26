@@ -1,0 +1,2 @@
+//# allFunctionsCalledOnLoad
+import{B as e,F as t,I as n,Q as r,k as i,t as a}from"#entry";import{t as o}from"./BWemWpz0.js";var s=t({props:{name:{type:String,required:!0},mode:{type:String,required:!1,default:null},size:{type:[Number,String],required:!1,default:null},customize:{type:Function,required:!1,default:null}}});function c(t,a,s,c,l,u){return e(),i(o,r(n(t.$props)),null,16)}var l=Object.assign(a(s,[[`render`,c]]),{__name:`UIcon`});export{l as t};

@@ -1,4 +1,7 @@
 export default defineNuxtConfig({
+  future: {
+    compatibilityVersion: 4,
+  },
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
 
@@ -10,9 +13,16 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // Pastikan file halaman dinamis seperti [slug].vue ikut dipindai Tailwind.
+  tailwindcss: {
+    experimental: {
+      strictScanContentPaths: true
+    }
+  },
+
   colorMode: {
-    preference: 'dark',
-    fallback: 'dark',
+    preference: 'light',
+    fallback: 'light',
     classSuffix: ''
   },
 

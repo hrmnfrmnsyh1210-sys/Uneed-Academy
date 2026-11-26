@@ -1,5 +1,8 @@
+import { eq, or } from 'drizzle-orm'
 import { loginSchema } from '~~/shared/schemas/auth'
 import { verifyPassword } from '~~/server/utils/security'
+import { db } from '~~/server/database/connection'
+import { users, roles, userRoles } from '~~/server/database/schema'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -13,88 +16,61 @@ export default defineEventHandler(async (event) => {
   }
 
   const { emailOrUsername, password } = validation.data
-  const config = useRuntimeConfig()
 
-  // Verifikasi kredensial Super Admin default jika sesuai environment config
-  if (
-    (emailOrUsername === config.initialAdminEmail || emailOrUsername === 'admin') &&
-    password === config.initialAdminPassword
-  ) {
-    const adminUser = {
-      id: 'usr_admin_master',
-      name: 'Super Admin Uneed',
-      username: 'admin',
-      email: config.initialAdminEmail,
-      role: 'super_admin',
-      isEmailVerified: true,
-      totalXp: 9999,
-      currentLevel: 10,
-    }
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(or(eq(users.email, emailOrUsername), eq(users.username, emailOrUsername)))
+    .limit(1)
 
-    await setUserSession(event, {
-      user: adminUser,
-      loggedInAt: new Date(),
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Email/Username atau password salah',
     })
-
-    return {
-      success: true,
-      message: 'Login sebagai Super Admin berhasil',
-      user: adminUser,
-    }
   }
 
-  // Demo / Standard Student login credentials fallback
-  if (emailOrUsername === 'student@uneed.id' || emailOrUsername === 'student') {
-    const studentUser = {
-      id: 'usr_student_demo',
-      name: 'Budi Raharjo',
-      username: 'budiraharjo',
-      email: 'student@uneed.id',
-      role: 'student',
-      isEmailVerified: true,
-      totalXp: 350,
-      currentLevel: 2,
-    }
-
-    await setUserSession(event, {
-      user: studentUser,
-      loggedInAt: new Date(),
+  const isValid = await verifyPassword(password, user.passwordHash)
+  if (!isValid) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Email/Username atau password salah',
     })
-
-    return {
-      success: true,
-      message: 'Login sebagai Student berhasil',
-      user: studentUser,
-    }
   }
 
-  // Mentor credentials
-  if (emailOrUsername === 'mentor@uneed.id' || emailOrUsername === 'mentor') {
-    const mentorUser = {
-      id: 'usr_mentor_demo',
-      name: 'Aris Prasetyo',
-      username: 'aris_mentor',
-      email: 'mentor@uneed.id',
-      role: 'mentor',
-      isEmailVerified: true,
-      totalXp: 5000,
-      currentLevel: 8,
-    }
-
-    await setUserSession(event, {
-      user: mentorUser,
-      loggedInAt: new Date(),
+  if (user.status !== 'active') {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Akun Anda sedang dinonaktifkan',
     })
-
-    return {
-      success: true,
-      message: 'Login sebagai Mentor berhasil',
-      user: mentorUser,
-    }
   }
 
-  throw createError({
-    statusCode: 401,
-    statusMessage: 'Email/Username atau password salah',
+  const [assignedRole] = await db
+    .select({ roleName: roles.name })
+    .from(userRoles)
+    .innerJoin(roles, eq(userRoles.roleId, roles.id))
+    .where(eq(userRoles.userId, user.id))
+    .limit(1)
+
+  const sessionUser = {
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    email: user.email,
+    role: assignedRole?.roleName || 'student',
+    isEmailVerified: user.isEmailVerified,
+    totalXp: user.totalXp,
+    currentLevel: user.currentLevel,
+  }
+
+  await setUserSession(event, {
+    user: sessionUser,
+    loggedInAt: new Date(),
   })
+
+  return {
+    success: true,
+    message: 'Login berhasil',
+    user: sessionUser,
+  }
 })

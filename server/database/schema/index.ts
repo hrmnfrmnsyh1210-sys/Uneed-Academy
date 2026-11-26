@@ -294,7 +294,25 @@ export const certificates = mysqlTable('certificates', {
   userClassCertIdx: uniqueIndex('user_class_cert_idx').on(table.userId, table.classId),
 }))
 
-// 8. NOTIFICATIONS & AUDIT LOGS
+// 8. PUBLIC TESTIMONIALS (MENTOR & ALUMNI)
+export const testimonials = mysqlTable('testimonials', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  userId: varchar('user_id', { length: 36 }).references(() => users.id, { onDelete: 'set null' }),
+  role: varchar('role', { length: 16 }).notNull(), // mentor, alumni
+  name: varchar('name', { length: 128 }).notNull(),
+  headline: varchar('headline', { length: 255 }),
+  quote: text('quote').notNull(),
+  avatarUrl: text('avatar_url'),
+  classSlug: varchar('class_slug', { length: 255 }),
+  rating: int('rating').default(5).notNull(),
+  sortOrder: int('sort_order').default(0).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  roleNameIdx: uniqueIndex('testimonial_role_name_idx').on(table.role, table.name),
+}))
+
+// 9. NOTIFICATIONS & AUDIT LOGS
 export const notifications = mysqlTable('notifications', {
   id: varchar('id', { length: 36 }).primaryKey(),
   userId: varchar('user_id', { length: 36 }).notNull().references(() => users.id, { onDelete: 'cascade' }),

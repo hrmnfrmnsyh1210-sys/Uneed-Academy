@@ -16,17 +16,34 @@
 ---
 
 ## 2. Fitur yang Sedang Dikerjakan (In Progress)
-- [ ] Inisialisasi Project Nuxt 4 Fullstack
-- [ ] Konfigurasi TypeScript, Tailwind CSS, Nuxt UI, Lucide Icons, Pinia
-- [ ] Setup Drizzle ORM dengan TiDB Cloud MySQL driver
-- [ ] Implementasi Database Schema (`server/database/schema/*.ts`)
-- [ ] Setup Nuxt Auth Utils & RBAC Middleware
+- [x] Inisialisasi Project Nuxt 4 Fullstack
+- [x] Konfigurasi TypeScript, Tailwind CSS, Nuxt UI, Lucide Icons, Pinia
+- [x] Setup Drizzle ORM dengan TiDB Cloud MySQL driver
+- [x] Implementasi Database Schema (`server/database/schema/*.ts`)
+- [x] Setup Nuxt Auth Utils & RBAC Middleware
+- [x] Panel admin: dashboard analytics, kelas, kurikulum, siswa, pembayaran, badge, sertifikat, mentor & alumni (data real dari database)
+- [ ] Integrasi payment gateway Midtrans & verifikasi manual
+- [ ] Learning engine lengkap (submit, review mentor, sequential unlock otomatis)
+
+### Catatan pembaruan publik (2026-11-25)
+- Landing page, katalog, dan halaman detail kelas kini memakai data real dari database melalui `/api/public/*`.
+- Tabel `testimonials` ditambahkan sebagai sumber data Mentor & Alumni; data awal diisi via `npm run db:seed:public`.
+- Setiap kelas memiliki halaman detail `/classes/:slug` lengkap dengan kurikulum, mentor, prasyarat, dan testimoni.
+- Navbar landing bersifat fixed: transparan dengan teks putih di bagian atas, berubah solid setelah scroll.
+- Perbaikan Tailwind: `strictScanContentPaths` diaktifkan agar halaman dinamis (`[slug].vue`, `[id].vue`, `[code].vue`) ikut dipindai; sebelumnya class CSS di halaman detail tidak tergenerate sehingga layout berantakan.
+
+### Catatan pembaruan panel admin (2026-11-25)
+- Seluruh halaman `/admin/*` tidak lagi memakai data hardcode; semuanya diambil dari database melalui `/api/admin/*`.
+- Endpoint admin dilindungi RBAC (`super_admin`/`admin`) dan `app/middleware/admin.global.ts` mengalihkan pengguna non-admin.
+- CRUD kelas, penambahan modul/quest, verifikasi pembayaran (aktifkan enrollment + notifikasi), pengelolaan badge, dan pengelolaan testimoni mentor/alumni sudah berfungsi.
+- Akun super admin awal dibuat via `npm run db:seed:admin`: `admin@uneed.academy` / `Admin123!` (bisa diganti lewat env `ADMIN_EMAIL` / `ADMIN_PASSWORD`).
+- Layout admin sekarang responsif: sidebar drawer di mobile, tabel dengan horizontal scroll, dan header menampilkan identitas akun yang login.
 
 ---
 
 ## 3. Fitur yang Belum Selesai (Pending)
-- [ ] Phase 2: Public Website (Landing page, Katalog kelas, Detail kelas, Auth pages)
-- [ ] Phase 3: Class Management (Admin CRUD kelas, modul, materi, tugas, curriculum builder)
+- [x] Phase 2: Public Website (Landing page, Katalog kelas, Detail kelas, Auth pages)
+- [x] Phase 3: Class Management (Admin CRUD kelas, modul, quest, curriculum builder)
 - [ ] Phase 4: Payment & Enrollment (Midtrans gateway, manual payment, aktivasi otomatis)
 - [ ] Phase 5: Learning Engine (Workspace Uneed Classroom, sequential task lock/unlock, submission & mentor review)
 - [ ] Phase 6: Gamification (Badge reward otomatis, XP transaction, level system)
